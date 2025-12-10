@@ -1,0 +1,22 @@
+---
+- name: Install and configure Apache on web hosts (placeholder)
+  hosts: tag_Type_web
+  become: yes
+  tasks:
+    - name: Install Apache (Debian/Ubuntu)
+      apt:
+        name: apache2
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Install Apache (RHEL/CentOS/Amazon)
+      yum:
+        name: httpd
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: Ensure Apache is running
+      service:
+        name: "{{ 'apache2' if ansible_os_family == 'Debian' else 'httpd' }}"
+        state: started
+        enabled: yes

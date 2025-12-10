@@ -1,0 +1,29 @@
+---
+- name: Provision EC2 instances (example)
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ec2_image: ami-0c94855ba95c71c99  # Example: Amazon Linux 2 (change for your region)
+    ec2_type: t2.micro
+    key_name: my-key
+    security_group: ansible-ec2-sg
+    instance_count: 1
+
+  tasks:
+    - name: Launch EC2 instance(s)
+      amazon.aws.ec2_instance:
+        name: "ansible-ec2-{{ 999 | random }}"
+        key_name: "{{ key_name }}"
+        instance_type: "{{ ec2_type }}"
+        image_id: "{{ ec2_image }}"
+        count: "{{ instance_count }}"
+        state: present
+        wait: yes
+        tags:
+          Type: web
+      register: ec2_result
+
+    - name: Show launched instances
+      debug:
+        var: ec2_result.instances

@@ -1,0 +1,17 @@
+---
+- name: Create EFS filesystem and mount targets (example)
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    efs_name: ansible-efs-example
+  tasks:
+    - name: Create EFS filesystem
+      amazon.aws.efs_file_system:
+        state: present
+        name: "{{ efs_name }}"
+      register: efs_result
+
+    - name: Debug EFS result
+      debug:
+        var: efs_result

@@ -1,0 +1,24 @@
+---
+- name: Install and configure MySQL on database hosts (placeholder)
+  hosts: tag_Type_database
+  become: yes
+  vars:
+    mysql_root_password: change_me_password
+  tasks:
+    - name: Ensure MySQL is installed (Debian/Ubuntu)
+      apt:
+        name: mysql-server
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Ensure MySQL is installed (RedHat/CentOS/Amazon)
+      yum:
+        name: mariadb-server
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: Ensure MySQL service is running
+      service:
+        name: "{{ 'mysql' if ansible_os_family == 'Debian' else 'mariadb' }}"
+        state: started
+        enabled: yes
