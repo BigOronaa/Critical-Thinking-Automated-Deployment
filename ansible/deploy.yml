@@ -2,15 +2,15 @@
 - name: Deploy Infrastructure and Application
   hosts: localhost
   gather_facts: false
+
   vars:
     app_name: critical_thinking_app
     deploy_dir: /opt/critical_thinking_app
     repo_url: https://github.com/BigOronaa/critical_thinking_automated_deployment.git
-    aws_key_name: ansible-key
-    region: us-east-1
+    aws_key_name: "{{ aws_key_name }}"
 
   roles:
-    - role: ec2      # creates EC2 instances, adds them to 'launched'
-    - role: efs      # will mount EFS to instances in 'launched'
-    - role: apache   # installs Apache on instances in 'launched'
-    - role: mysql    # installs MySQL on instances in 'launched'
+    - ec2
+    - efs
+    - apache
+    - mysql
