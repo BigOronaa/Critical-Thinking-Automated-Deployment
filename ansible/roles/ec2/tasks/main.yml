@@ -1,0 +1,21 @@
+---
+- name: Launch EC2 instance
+  amazon.aws.ec2_instance:
+    name: "critical_thinking_app-ec2"
+    key_name: "{{ aws_key_name }}"
+    instance_type: t2.micro
+    image_id: ami-0c94855ba95c71c99  # Example: Ubuntu 22.04 in us-east-1
+    wait: yes
+    region: us-east-1
+    network:
+      assign_public_ip: yes
+    tags:
+      Project: CriticalThinking
+      Environment: Dev
+  register: ec2_instance
+
+- name: Add new EC2 instance to host group
+  add_host:
+    hostname: "{{ item.public_ip_address }}"
+    groups: launched
+  loop: "{{ ec2_instance.instances }}"
