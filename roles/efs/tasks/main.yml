@@ -7,6 +7,8 @@
     throughput_mode: "{{ efs_throughput_mode }}"
     region: "{{ aws_region }}"
   register: efs_result
+  collections:
+    - amazon.aws
 
 - name: Wait for EFS to be available
   amazon.aws.efs_info:
@@ -17,6 +19,8 @@
   until: efs_info.filesystems[0].life_cycle_state == 'available'
   retries: 10
   delay: 15
+  collections:
+    - amazon.aws
 
 - name: Create mount directory on EC2
   file:
