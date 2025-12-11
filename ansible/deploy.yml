@@ -1,15 +1,20 @@
 ---
-- name: Update apt cache
-  apt:
-    update_cache: yes
+- name: Deploy Infrastructure and Application
+  hosts: localhost
+  gather_facts: false
 
-- name: Install MySQL server
-  apt:
-    name: mysql-server
-    state: present
+  vars:
+    aws_region: us-east-1
+    aws_key_name: "{{ aws_key_name }}"
 
-- name: Ensure MySQL is running and enabled
-  systemd:
-    name: mysql
-    state: started
-    enabled: yes
+  roles:
+    - ec2
+    - efs
+
+- name: Configure EC2 Instance
+  hosts: launched
+  become: yes
+
+  roles:
+    - apache
+    - mysql
