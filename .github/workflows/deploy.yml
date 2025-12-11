@@ -27,6 +27,5 @@ jobs:
     - name: Verify Ansible version
       run: ansible --version
 
-    # Add your deploy steps here
     - name: Run deployment playbook
-      run: ansible-playbook deploy.yml
+      run: ansible-playbook ansible/deploy.yml
