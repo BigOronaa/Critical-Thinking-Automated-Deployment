@@ -1,0 +1,6 @@
+---
+efs_name: ansible-efs
+efs_performance_mode: generalPurpose
+efs_throughput_mode: bursting
+efs_mount_point: /mnt/efs
+

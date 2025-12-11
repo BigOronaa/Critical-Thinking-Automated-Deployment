@@ -1,0 +1,35 @@
+---
+- name: Create EFS file system
+  amazon.aws.efs:
+    state: present
+    name: "{{ efs_name }}"
+    performance_mode: "{{ efs_performance_mode }}"
+    throughput_mode: "{{ efs_throughput_mode }}"
+    region: "{{ aws_region }}"
+  register: efs_result
+
+- name: Wait for EFS to be available
+  amazon.aws.efs_info:
+    names:
+      - "{{ efs_name }}"
+    region: "{{ aws_region }}"
+  register: efs_info
+  until: efs_info.filesystems[0].life_cycle_state == 'available'
+  retries: 10
+  delay: 15
+
+- name: Create mount directory on EC2
+  file:
+    path: "{{ efs_mount_point }}"
+    state: directory
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['aws'] }}"
+
+- name: Mount EFS on EC2
+  mount:
+    path: "{{ efs_mount_point }}"
+    src: "{{ efs_info.filesystems[0].file_system_id }}:/"
+    fstype: nfs4
+    state: mounted
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['aws'] }}"

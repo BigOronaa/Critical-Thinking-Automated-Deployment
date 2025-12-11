@@ -1,0 +1,10 @@
+---
+- name: Automated AWS Deployment
+  hosts: localhost
+  gather_facts: False
+
+  roles:
+    - ec2
+    - efs
+    - apache
+    - mysql

@@ -1,0 +1,27 @@
+---
+- name: Install Apache
+  apt:
+    name: "{{ apache_service_name }}"
+    state: present
+    update_cache: yes
+  become: yes
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['aws'] }}"
+
+- name: Ensure Apache is running and enabled
+  service:
+    name: "{{ apache_service_name }}"
+    state: started
+    enabled: yes
+  become: yes
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['aws'] }}"
+
+- name: Open Apache port in firewall (UFW)
+  ufw:
+    rule: allow
+    port: "{{ apache_port }}"
+    proto: tcp
+  become: yes
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['aws'] }}"

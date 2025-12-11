@@ -1,0 +1,5 @@
+---
+mysql_root_password: "StrongRootPass123!"
+mysql_database: "app_db"
+mysql_user: "app_user"
+mysql_user_password: "AppUserPass123!"
