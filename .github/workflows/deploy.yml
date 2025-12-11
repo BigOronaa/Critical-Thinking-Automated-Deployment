@@ -16,12 +16,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.x"
+          python-version: "3.11"
 
       - name: Install Ansible & AWS dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install ansible==8.10.0 boto3 botocore
+          pip install ansible==8.9.0 boto3 botocore
           ansible-galaxy collection install amazon.aws:>=3.8.0
 
       - name: Configure AWS credentials
