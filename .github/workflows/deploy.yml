@@ -21,7 +21,8 @@ jobs:
       - name: Install Ansible + AWS requirements
         run: |
           pip install ansible boto3 botocore
-          ansible-galaxy collection install amazon.aws
+          mkdir -p ansible/collections
+          ansible-galaxy collection install amazon.aws --collections-path ansible/collections
 
       - name: Verify installation
         run: |
@@ -36,4 +37,5 @@ jobs:
           aws-region: us-east-1
 
       - name: Run Ansible playbook
-        run: ansible-playbook ansible/deploy.yml --extra-vars "aws_key_name=ansible-key"
+        working-directory: ansible
+        run: ansible-playbook deploy.yml --extra-vars "aws_key_name=ansible-key"
