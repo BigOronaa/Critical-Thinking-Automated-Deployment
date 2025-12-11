@@ -16,17 +16,17 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: '3.11'
 
-      - name: Install Ansible and AWS dependencies
+      - name: Install Ansible + AWS requirements
         run: |
           pip install ansible boto3 botocore
           ansible-galaxy collection install amazon.aws
 
-      - name: Verify Ansible version
+      - name: Verify installation
         run: |
           ansible --version
-          ansible-galaxy collection list | grep amazon.aws
+          ansible-galaxy collection list
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -35,5 +35,5 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Run Ansible Playbook
+      - name: Run Ansible playbook
         run: ansible-playbook ansible/deploy.yml --extra-vars "aws_key_name=ansible-key"
