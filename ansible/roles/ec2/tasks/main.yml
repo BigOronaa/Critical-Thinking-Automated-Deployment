@@ -4,7 +4,7 @@
     name: "critical_thinking_app-ec2"
     key_name: "{{ aws_key_name }}"
     instance_type: t2.micro
-    image_id: ami-0c94855ba95c71c99  # Example: Ubuntu 22.04 in us-east-1
+    image_id: ami-0c94855ba95c71c99
     wait: yes
     region: us-east-1
     network:
