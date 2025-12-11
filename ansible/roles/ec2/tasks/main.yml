@@ -1,20 +1,17 @@
 ---
 - name: Launch EC2 instance
   amazon.aws.ec2_instance:
-    name: "critical_thinking_app-ec2"
+    name: "critical-thinking-ec2"
     key_name: "{{ aws_key_name }}"
     instance_type: t2.micro
-    image_id: ami-0c94855ba95c71c99
+    image_id: ami-0c94855ba95c71c99   # Ubuntu AMI us-east-1
     wait: yes
-    region: us-east-1
+    region: "{{ aws_region }}"
     network:
       assign_public_ip: yes
-    tags:
-      Project: CriticalThinking
-      Environment: Dev
   register: ec2_instance
 
-- name: Add new EC2 instance to host group
+- name: Add EC2 public IP to 'launched' group
   add_host:
     hostname: "{{ item.public_ip_address }}"
     groups: launched

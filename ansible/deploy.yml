@@ -1,15 +1,15 @@
-- name: Deploy Infrastructure and Application
-  hosts: localhost
-  gather_facts: false
-  vars:
-    app_name: critical_thinking_app
-    deploy_dir: /opt/critical_thinking_app
-    repo_url: https://github.com/BigOronaa/critical_thinking_automated_deployment.git
-    aws_key_name: "{{ aws_key_name }}"
-  collections:
-    - amazon.aws
-  roles:
-    - ec2
-    - efs
-    - apache
-    - mysql
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install MySQL server
+  apt:
+    name: mysql-server
+    state: present
+
+- name: Ensure MySQL is running and enabled
+  systemd:
+    name: mysql
+    state: started
+    enabled: yes

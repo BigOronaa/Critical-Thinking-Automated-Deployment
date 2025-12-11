@@ -4,12 +4,9 @@
     state: present
     performance_mode: generalPurpose
     encrypted: yes
-    region: us-east-1
+    region: "{{ aws_region }}"
   register: efs_fs
 
-- name: Mount EFS on EC2 instance
-  mount:
-    path: /mnt/efs
-    src: "{{ efs_fs.file_system_id }}:/"
-    fstype: nfs4
-    state: mounted
+- name: Save EFS ID for other plays
+  set_fact:
+    efs_id: "{{ efs_fs.file_system_id }}"
