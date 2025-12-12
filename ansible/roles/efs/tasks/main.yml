@@ -1,44 +1,9 @@
 ---
-- name: Deploy EFS via CloudFormation
-  amazon.aws.cloudformation:
-    stack_name: my-efs-stack
+- name: Create EFS filesystem
+  amazon.aws.efs:
     state: present
-    region: us-east-1
-    template_body: |
-      AWSTemplateFormatVersion: '2010-09-09'
-      Resources:
-        MyEFS:
-          Type: AWS::EFS::FileSystem
-          Properties:
-            Encrypted: true
-            PerformanceMode: generalPurpose
-      Outputs:
-        FileSystemId:
-          Description: EFS filesystem ID
-          Value: !Ref MyEFS
-  register: efs_stack
+    region: "{{ aws_region }}"
+  register: efs_out
 
-- name: Get CloudFormation stack info
-  amazon.aws.cloudformation_info:
-    stack_name: my-efs-stack
-    region: us-east-1
-  register: stack_info
-  retries: 10
-  delay: 15
-  until: stack_info.stacks[0].stack_status == "CREATE_COMPLETE"
-
-- name: Set EFS ID
-  set_fact:
-    efs_id: "{{ stack_info.stacks[0].outputs[0].output_value }}"
-
-- name: Ensure mount directory exists
-  file:
-    path: /mnt/efs
-    state: directory
-
-- name: Mount EFS on localhost
-  mount:
-    path: /mnt/efs
-    src: "{{ efs_id }}:/"
-    fstype: nfs4
-    state: mounted
+- debug:
+    var: efs_out

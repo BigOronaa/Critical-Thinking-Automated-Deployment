@@ -1,22 +1,39 @@
-- name: Setup Python
-  uses: actions/setup-python@v4
-  with:
-    python-version: '3.10'
+name: Deploy Using Ansible
 
-- name: Install dependencies
-  run: |
-    python -m venv .venv
-    source .venv/bin/activate
-    pip install ansible boto3 botocore
+on:
+  push:
+    branches: [ "main" ]
 
-- name: Install Ansible Collections
-  run: |
-    source .venv/bin/activate
-    ansible-galaxy collection install amazon.aws --collections-path ansible/collections
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-- name: Run Deployment
-  run: |
-    source .venv/bin/activate
-    export ANSIBLE_COLLECTIONS_PATH=$PWD/ansible/collections
-    ansible-playbook ansible/deploy.yml -i ansible/inventory.ini \
-      --extra-vars "aws_key_name=ansible-key aws_region=us-east-1" -vvv
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install Python Dependencies
+      run: |
+        python -m venv .venv
+        source .venv/bin/activate
+        pip install ansible boto3 botocore
+
+    - name: Install Ansible Collections
+      run: |
+        source .venv/bin/activate
+        ansible-galaxy collection install amazon.aws --collections-path ansible/collections
+
+    - name: Run Deployment
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: "us-east-1"
+      run: |
+        source .venv/bin/activate
+        export ANSIBLE_COLLECTIONS_PATH=$PWD/ansible/collections
+        ansible-playbook ansible/deploy.yml -i ansible/inventory.ini -vvv

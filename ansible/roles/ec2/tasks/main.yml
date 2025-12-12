@@ -1,18 +1,13 @@
 ---
-- name: Launch EC2 instance
+- name: Launch EC2 Instance
   amazon.aws.ec2_instance:
-    name: "critical-thinking-ec2"
+    name: "ansible-ec2"
     key_name: "{{ aws_key_name }}"
     instance_type: t2.micro
-    image_id: ami-0c94855ba95c71c99   # Ubuntu AMI us-east-1
-    wait: yes
+    image_id: ami-0c94855ba95c71c99
     region: "{{ aws_region }}"
-    network:
-      assign_public_ip: yes
-  register: ec2_instance
+    wait: yes
+  register: ec2_out
 
-- name: Add EC2 public IP to 'launched' group
-  add_host:
-    hostname: "{{ item.public_ip_address }}"
-    groups: launched
-  loop: "{{ ec2_instance.instances }}"
+- debug:
+    var: ec2_out

@@ -1,13 +1,11 @@
 ---
 - name: Deploy Infrastructure and Application
-  hosts: aws
+  hosts: local
   gather_facts: false
 
   vars:
-    app_name: critical_thinking_app
-    deploy_dir: /opt/critical_thinking_app
-    repo_url: https://github.com/BigOronaa/critical_thinking_automated_deployment.git
-    aws_key_name: "{{ aws_key_name }}"
+    aws_region: "us-east-1"
+    aws_key_name: "ansible-key"
 
   roles:
     - ec2
