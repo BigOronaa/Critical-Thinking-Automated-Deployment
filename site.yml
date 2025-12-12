@@ -1,17 +1,5 @@
-- name: Provision AWS infra (creates EC2 instances + EFS)
-  hosts: localhost
-  connection: local
-  gather_facts: false
-  vars_files:
-    - group_vars/aws.yml   # optional place for defaults (you can create or set via -e)
-  tasks:
-    - name: Run provisioning playbook
-      import_playbook: playbooks/provision.yml
-
-- name: Configure newly provisioned hosts (install Apache/MySQL and mount EFS)
-  hosts: tag_Name_myapp  # we will create instances with tag Name=myapp
-  become: true
-  gather_facts: true
-  tasks:
-    - name: Run configuration playbook
-      import_playbook: playbooks/configure.yml
+---
+- import_playbook: playbooks/provision-ec2.yml
+- import_playbook: playbooks/setup-efs.yml
+- import_playbook: playbooks/install-mysql.yml
+- import_playbook: playbooks/install-apache.yml
