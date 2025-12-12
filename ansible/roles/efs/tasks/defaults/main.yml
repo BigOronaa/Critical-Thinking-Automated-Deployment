@@ -1,0 +1,6 @@
+---
+# Default variables for EFS
+efs_mount_path: /mnt/efs
+efs_performance_mode: generalPurpose
+efs_encrypted: true
+efs_region: us-east-1
