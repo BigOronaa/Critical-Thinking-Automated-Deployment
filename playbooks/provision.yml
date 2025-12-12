@@ -1,0 +1,60 @@
+- name: Provision resources on AWS
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    aws_region: "{{ aws_region | default('us-east-1') }}"
+    ec2_key_name: "your-keypair-name"       # <-- CHANGE: your existing EC2 keypair
+    instance_type: "t3.micro"
+    image: "ami-0c94855ba95c71c99"          # <-- CHANGE: example AMI (Ubuntu 20.04) for us-east-1
+    security_group: "sg-xxxxxxxx"           # <-- optional: security group id or create below
+    subnet_id: ""                           # <-- optional: subnet id
+    instance_count: 1
+  tasks:
+    - name: Ensure boto3 is present
+      pip:
+        name:
+          - boto3
+          - botocore
+
+    - name: Create EC2 instances
+      community.aws.ec2_instance:
+        name: "myapp-instance"
+        key_name: "{{ ec2_key_name }}"
+        instance_type: "{{ instance_type }}"
+        image_id: "{{ image }}"
+        region: "{{ aws_region }}"
+        count: "{{ instance_count }}"
+        wait: yes
+        assign_public_ip: yes
+        tags:
+          Name: "myapp"
+      register: ec2
+
+    - name: Add new instances to inventory
+      add_host:
+        name: "{{ item.public_ip_address }}"
+        groups: "tag_Name_myapp"
+        ansible_host: "{{ item.public_ip_address }}"
+        ansible_user: ubuntu
+      loop: "{{ ec2.instances }}"
+
+    - name: Create EFS file system
+      amazon.aws.efs:
+        state: present
+        name: "myapp-efs"
+        performance_mode: generalPurpose
+        region: "{{ aws_region }}"
+      register: efs
+
+    - name: Wait for EFS to be available
+      amazon.aws.efs_info:
+        region: "{{ aws_region }}"
+      register: efs_info
+      until: efs_info.filesystems | length > 0
+      retries: 10
+      delay: 10
+
+    - name: Print EFS info
+      debug:
+        var: efs_info

@@ -1,0 +1,39 @@
+- name: Configure webserver & mysql on provisioned hosts
+  hosts: tag_Name_myapp
+  become: true
+  vars:
+    mount_point: /mnt/efs
+    efs_dns: "{{ lookup('env','EFS_DNS') | default('') }}"  # optional: set via registered var or external
+  tasks:
+    - name: Install apt packages (Apache & MySQL client)
+      apt:
+        name:
+          - apache2
+          - mysql-client
+          - nfs-common
+        update_cache: true
+        state: present
+
+    - name: Ensure mount point exists
+      file:
+        path: "{{ mount_point }}"
+        state: directory
+
+    - name: Mount EFS (temporary simplistic mount using NFS)
+      mount:
+        path: "{{ mount_point }}"
+        src: "{{ efs_dns }}:/"
+        fstype: nfs4
+        state: mounted
+      when: efs_dns != ''
+
+    - name: Create simple HTML page
+      copy:
+        dest: /var/www/html/index.html
+        content: "<h1>Deployed by Ansible on {{ ansible_facts['fqdn']|default(inventory_hostname) }}</h1>"
+
+    - name: Ensure apache is running
+      service:
+        name: apache2
+        state: started
+        enabled: yes
