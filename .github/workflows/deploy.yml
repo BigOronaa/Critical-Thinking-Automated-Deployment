@@ -1,61 +1,22 @@
-name: Deploy → Ansible on AWS
+- name: Setup Python
+  uses: actions/setup-python@v4
+  with:
+    python-version: '3.10'
 
-on:
-  push:
-    branches: [ main ]
+- name: Install dependencies
+  run: |
+    python -m venv .venv
+    source .venv/bin/activate
+    pip install ansible boto3 botocore
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    env:
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+- name: Install Ansible Collections
+  run: |
+    source .venv/bin/activate
+    ansible-galaxy collection install amazon.aws --collections-path ansible/collections
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install system packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-venv sshpass
-
-      - name: Create venv & install deps
-        run: |
-          python -m venv .venv
-          source .venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          ansible-galaxy collection install community.aws amazon.aws || true
-
-      - name: Prepare inventory
-        run: |
-          # Inventory will be created/updated by playbooks as needed.
-          ls -la
-
-      - name: Run Ansible site playbook (provision + configure)
-        id: run_ansible
-        run: |
-          source .venv/bin/activate
-          # Show versions for debugging
-          ansible --version
-          python -c "import boto3; print('boto3', boto3.__version__)"
-          # Run the orchestration playbook (provision then configure)
-          ansible-playbook -vvv site.yml -e "aws_region=${{ secrets.AWS_REGION }}" || exit 10
-
-      - name: Notify Slack on failure
-        if: failure()
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        run: |
-          if [ -z "$SLACK_WEBHOOK" ]; then
-            echo "No Slack webhook configured; skipping notification."
-            exit 0
-          fi
-          payload="{\"text\":\"Deployment failed for commit $GITHUB_SHA on branch $GITHUB_REF\"}"
-          curl -s -X POST -H 'Content-type: application/json' --data "$payload" "$SLACK_WEBHOOK"
+- name: Run Deployment
+  run: |
+    source .venv/bin/activate
+    export ANSIBLE_COLLECTIONS_PATH=$PWD/ansible/collections
+    ansible-playbook ansible/deploy.yml -i ansible/inventory.ini \
+      --extra-vars "aws_key_name=ansible-key aws_region=us-east-1" -vvv
