@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Ansible + AWS requirements
+      - name: Install Ansible + AWS SDK
         run: |
           pip install ansible boto3 botocore
           mkdir -p ansible/collections
@@ -36,6 +36,5 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Run Ansible playbook
-        working-directory: ansible
-        run: ansible-playbook deploy.yml --extra-vars "aws_key_name=ansible-key"
+      - name: Run Ansible Playbook
+        run: ansible-playbook ansible/deploy.yml --extra-vars "aws_key_name=ansible-key"
