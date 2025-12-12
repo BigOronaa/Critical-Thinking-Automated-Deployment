@@ -1,20 +1,16 @@
 ---
 - name: Deploy Infrastructure and Application
-  hosts: localhost
+  hosts: aws
   gather_facts: false
 
   vars:
-    aws_region: us-east-1
+    app_name: critical_thinking_app
+    deploy_dir: /opt/critical_thinking_app
+    repo_url: https://github.com/BigOronaa/critical_thinking_automated_deployment.git
     aws_key_name: "{{ aws_key_name }}"
 
   roles:
     - ec2
     - efs
-
-- name: Configure EC2 Instance
-  hosts: launched
-  become: yes
-
-  roles:
     - apache
     - mysql

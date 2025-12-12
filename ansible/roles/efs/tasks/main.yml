@@ -13,3 +13,4 @@
     src: "{{ efs_fs.file_system_id }}:/"
     fstype: nfs4
     state: mounted
+

@@ -42,4 +42,5 @@ jobs:
       - name: Run Ansible Playbook
         env:
           ANSIBLE_COLLECTIONS_PATHS: ansible/collections
-        run: ansible-playbook ansible/deploy.yml --extra-vars "aws_key_name=ansible-key"
+          ANSIBLE_ROLES_PATH: ansible/roles
+        run: ansible-playbook ansible/deploy.yml --extra-vars "aws_key_name=ansible-key" -i ansible/inventory.ini
