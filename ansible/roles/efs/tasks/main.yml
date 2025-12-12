@@ -7,10 +7,9 @@
     region: us-east-1
   register: efs_fs
 
-- name: Mount EFS on EC2 instance
+- name: Mount EFS on localhost
   mount:
     path: /mnt/efs
     src: "{{ efs_fs.file_system_id }}:/"
     fstype: nfs4
     state: mounted
-
