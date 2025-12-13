@@ -23,8 +23,7 @@ jobs:
           python -m venv .venv
           source .venv/bin/activate
           pip install --upgrade pip
-          pip install ansible boto3 botocore
-          ansible-galaxy collection install amazon.aws community.aws
+          pip install ansible boto3 botocore amazon.aws community.aws
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -33,7 +32,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      - name: Configure SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ansible-key.pem
+          chmod 600 ~/.ssh/ansible-key.pem
+          ssh-keyscan -H 3.231.94.247 >> ~/.ssh/known_hosts
+
       - name: Run Ansible Playbook
         run: |
           source .venv/bin/activate
-          ansible-playbook ansible/deploy.yml -i ansible/inventory.ini
+          ansible-playbook ansible/deploy.yml \
+            -i ansible/inventory.ini \
+            --private-key ~/.ssh/ansible-key.pem
