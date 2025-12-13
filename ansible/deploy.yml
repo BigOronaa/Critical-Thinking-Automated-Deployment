@@ -1,14 +1,9 @@
----
 - name: Deploy Infrastructure and Application
-  hosts: local
+  hosts: localhost
+  connection: local
   gather_facts: false
-
-  vars:
-    aws_region: "us-east-1"
-    aws_key_name: "ansible-key"
 
   roles:
     - ec2
     - efs
-    - apache
-    - mysql
+

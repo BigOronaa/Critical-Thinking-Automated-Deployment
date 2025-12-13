@@ -1,0 +1,5 @@
+aws_key_name: ansible-key
+aws_region: us-east-1
+instance_type: t2.micro
+ami_id: ami-0e86e20dae9224db8
+

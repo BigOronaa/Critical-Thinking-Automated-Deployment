@@ -1,9 +1,8 @@
----
-- name: Create EFS filesystem
-  amazon.aws.efs:
+- name: Create EFS file system
+  community.aws.efs:
+    name: "my-efs"
+    encrypt: yes
+    performance_mode: general_purpose   # ✅ fixed
     state: present
     region: "{{ aws_region }}"
-  register: efs_out
 
-- debug:
-    var: efs_out
