@@ -2,7 +2,7 @@
 - name: Create EFS file system
   community.aws.efs:
     name: my-efs
-    encrypted: true
+    encrypt: true
     performance_mode: general_purpose  # lowercase with underscore
     throughput_mode: bursting
     state: present
