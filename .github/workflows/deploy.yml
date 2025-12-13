@@ -23,7 +23,8 @@ jobs:
           python -m venv .venv
           source .venv/bin/activate
           pip install --upgrade pip
-          pip install ansible boto3 botocore amazon.aws community.aws
+          pip install ansible boto3 botocore
+          ansible-galaxy collection install amazon.aws community.aws
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
