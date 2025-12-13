@@ -1,32 +1,39 @@
-name: Deploy Infra
+name: Deploy to AWS
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch:  # allows manual trigger
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: 3.12
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
           pip install ansible boto3 botocore
 
-      - name: Run Ansible Playbook
+      - name: Set AWS credentials
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_REGION: us-east-1
         run: |
-          ansible-playbook ansible/deploy.yml -i ansible/inventory.ini
+          echo "AWS credentials set"
 
+      - name: Run Ansible Playbook
+        run: |
+          source .venv/bin/activate
+          ansible-playbook ansible/deploy.yml -i ansible/inventory.ini

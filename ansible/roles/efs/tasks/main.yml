@@ -1,8 +1,11 @@
+---
 - name: Create EFS file system
   community.aws.efs:
-    name: "my-efs"
-    encrypt: yes
-    performance_mode: general_purpose   # ✅ fixed
+    name: my-efs
+    encrypted: true
+    performance_mode: general_purpose  # lowercase with underscore
+    throughput_mode: bursting
     state: present
-    region: "{{ aws_region }}"
-
+    region: "{{ lookup('env','AWS_REGION') }}"
+    tags:
+      Project: Critical-Thinking
