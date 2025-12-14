@@ -33,12 +33,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Set up SSH access to EC2
+      # 🔥 FIX: Use ssh-agent instead of writing key to disk
+      - name: Start SSH agent and add EC2 key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+
+      - name: Add EC2 to known hosts
         run: |
-          install -d -m 700 "$HOME/.ssh"
-          printf "%s\n" "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > $HOME/.ssh/ansible-key-ci.pem
-          chmod 600 $HOME/.ssh/ansible-key-ci.pem
-          ssh-keyscan -H 100.48.50.251 >> $HOME/.ssh/known_hosts
+          ssh-keyscan -H 100.48.50.251 >> ~/.ssh/known_hosts
 
       - name: Run Ansible Playbook
         run: |
