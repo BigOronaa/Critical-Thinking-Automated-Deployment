@@ -1,10 +1,17 @@
-- name: Deploy Infrastructure and Application
+---
+- name: Provision AWS Infrastructure
   hosts: localhost
   connection: local
-  gather_facts: false
+  gather_facts: no
 
   roles:
     - ec2
     - efs
-    - configure-ec2
 
+- name: Configure EC2 Instance
+  hosts: web
+  become: yes
+  gather_facts: yes
+
+  roles:
+    - configure-ec2
