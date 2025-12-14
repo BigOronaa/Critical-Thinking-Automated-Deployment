@@ -1,19 +1,24 @@
----
 - name: Update system packages
-  become: yes
-  yum:
+  package:
     name: "*"
     state: latest
 
-- name: Install nginx
-  become: yes
-  yum:
-    name: nginx
+- name: Install basic packages
+  package:
+    name:
+      - git
+      - docker
+      - amazon-efs-utils
     state: present
 
-- name: Start and enable nginx
-  become: yes
+- name: Start and enable Docker
   service:
-    name: nginx
+    name: docker
     state: started
-    enabled: yes
+    enabled: true
+
+- name: Add ec2-user to docker group
+  user:
+    name: ec2-user
+    groups: docker
+    append: yes
