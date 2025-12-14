@@ -1,5 +1,5 @@
 - name: Create EFS file system
-  amazon.aws.efs:
+  community.aws.efs:
     name: ansible-efs
     state: present
     tags:
