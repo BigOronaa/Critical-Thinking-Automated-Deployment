@@ -22,3 +22,17 @@
     name: ec2-user
     groups: docker
     append: yes
+
+- name: Create EFS mount directory
+  file:
+    path: /mnt/efs
+    state: directory
+    mode: '0755'
+
+- name: Mount EFS
+  mount:
+    path: /mnt/efs
+    src: "{{ efs_dns_name }}:/"
+    fstype: efs
+    opts: _netdev,tls
+    state: mounted

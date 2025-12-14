@@ -1,11 +1,10 @@
----
 - name: Create EFS file system
-  community.aws.efs:
-    name: my-efs
-    encrypt: true
-    performance_mode: general_purpose  # lowercase with underscore
-    throughput_mode: bursting
+  amazon.aws.efs:
     state: present
-    region: "{{ lookup('env','AWS_REGION') }}"
     tags:
-      Project: Critical-Thinking
+      Name: ansible-efs
+  register: efs_out
+
+- name: Export EFS DNS name
+  set_fact:
+    efs_dns_name: "{{ efs_out.efs.dns_name }}"
