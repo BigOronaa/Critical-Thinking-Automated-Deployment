@@ -36,8 +36,8 @@ jobs:
       - name: Set up SSH access to EC2
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/ansible-key.pem
-          chmod 600 ~/.ssh/ansible-key.pem
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/ansible-key-ci.pem
+          chmod 600 ~/.ssh/ansible-key-ci.pem
           ssh-keyscan -H 3.231.94.247 >> ~/.ssh/known_hosts
 
       - name: Run Ansible Playbook
