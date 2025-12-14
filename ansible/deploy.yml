@@ -6,4 +6,5 @@
   roles:
     - ec2
     - efs
+    - configure-ec2
 

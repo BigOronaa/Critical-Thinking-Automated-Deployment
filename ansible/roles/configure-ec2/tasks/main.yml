@@ -1,0 +1,19 @@
+---
+- name: Update system packages
+  become: yes
+  yum:
+    name: "*"
+    state: latest
+
+- name: Install nginx
+  become: yes
+  yum:
+    name: nginx
+    state: present
+
+- name: Start and enable nginx
+  become: yes
+  service:
+    name: nginx
+    state: started
+    enabled: yes
