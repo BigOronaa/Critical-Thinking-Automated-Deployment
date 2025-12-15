@@ -12,6 +12,7 @@
     state: running
     tags:
       Name: ansible-ec2
+      register: ec2_out
 
 - name: Export EC2 subnet ID
   set_fact:
