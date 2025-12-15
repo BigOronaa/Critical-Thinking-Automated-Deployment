@@ -1,5 +1,5 @@
 - name: Create EFS file system
-  amazon.aws.efs:
+  community.aws.efs:
     state: present
     name: ansible-efs
     region: us-east-1
