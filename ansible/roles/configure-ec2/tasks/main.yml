@@ -2,6 +2,7 @@
   package:
     name: "*"
     state: latest
+  become: true
 
 - name: Install basic packages
   package:
@@ -10,29 +11,34 @@
       - docker
       - amazon-efs-utils
     state: present
+  become: true
 
 - name: Start and enable Docker
   service:
     name: docker
     state: started
     enabled: true
+  become: true
 
 - name: Add ec2-user to docker group
   user:
     name: ec2-user
     groups: docker
     append: yes
+  become: true
 
 - name: Create EFS mount directory
   file:
     path: /mnt/efs
     state: directory
     mode: '0755'
+  become: true
 
 - name: Mount EFS
   mount:
     path: /mnt/efs
-    src: "{{ efs_dns_name }}:/"
+    src: "{{ hostvars['localhost']['efs_dns_name'] }}:/"
     fstype: efs
     opts: _netdev,tls
     state: mounted
+  become: true
