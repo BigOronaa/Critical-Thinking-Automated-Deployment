@@ -1,37 +1,24 @@
-- name: Update system packages
-  become: true
-  yum:
-    name: "*"
-    state: latest
-
-- name: Install required packages
-  become: true
-  yum:
-    name:
-      - amazon-efs-utils
-      - docker
-      - git
-    state: present
-
-- name: Start Docker
-  become: true
-  service:
-    name: docker
-    state: started
-    enabled: true
-
-- name: Create EFS mount directory
+- name: Create mount directory
   become: true
   file:
     path: /mnt/efs
     state: directory
     mode: '0755'
 
+- name: Wait for EFS DNS to resolve
+  become: true
+  shell: |
+    for i in {1..10}; do
+      getent hosts {{ efs_dns_name }} && exit 0
+      sleep 10
+    done
+    exit 1
+
 - name: Mount EFS
   become: true
   mount:
     path: /mnt/efs
-    src: "{{ efs_id }}:/"
+    src: "{{ efs_dns_name }}:/"
     fstype: efs
     opts: _netdev,tls
     state: mounted

@@ -1,25 +1,18 @@
 - name: Create EFS file system
   community.aws.efs:
+    name: ansible-efs
     state: present
-    performance_mode: generalPurpose
-    encrypted: true
-    tags:
-      Name: ansible-efs
+    region: us-east-1
   register: efs_out
 
-- name: Wait for EFS to become available
-  amazon.aws.efs_file_system_info:
-    file_system_ids:
-      - "{{ efs_out.file_system_id }}"
-  register: efs_info
-  until: efs_info.file_systems[0].life_cycle_state == "available"
-  retries: 10
-  delay: 10
+- name: Set EFS ID
+  set_fact:
+    efs_id: "{{ efs_out.efs.file_system_id }}"
 
-- name: Create EFS mount target
-  amazon.aws.efs_mount_target:
-    state: present
-    file_system_id: "{{ efs_out.file_system_id }}"
-    subnet_id: "{{ ec2_subnet_id }}"
-    security_groups:
-      - default
+- name: Build EFS DNS name
+  set_fact:
+    efs_dns_name: "{{ efs_id }}.efs.us-east-1.amazonaws.com"
+
+- name: Show EFS DNS
+  debug:
+    msg: "EFS DNS: {{ efs_dns_name }}"
