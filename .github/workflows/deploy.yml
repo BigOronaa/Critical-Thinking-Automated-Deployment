@@ -33,7 +33,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      # 🔥 FIX: Use ssh-agent instead of writing key to disk
+      # 🔥 Use ssh-agent to handle EC2 key
       - name: Start SSH agent and add EC2 key
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -43,7 +43,7 @@ jobs:
         run: |
           ssh-keyscan -H 100.48.50.251 >> ~/.ssh/known_hosts
 
-      - name: Run Ansible Playbook
+      - name: Run Ansible Playbook (Provision + Configure EC2 + EFS)
         run: |
           source .venv/bin/activate
           ansible-playbook ansible/deploy.yml -i ansible/inventory.ini

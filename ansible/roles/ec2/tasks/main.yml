@@ -17,7 +17,5 @@
 - name: Export EC2 subnet ID
   set_fact:
     ec2_subnet_id: "{{ ec2_out.instances[0].subnet_id }}"
-
-- name: Export EC2 security group ID
-  set_fact:
-    ec2_security_group_id: "{{ ec2_out.instances[0].security_groups[0].group_id }}"
+    ec2_public_ip: "{{ ec2_out.instances[0].public_ip_address }}"
+  delegate_to: localhost
