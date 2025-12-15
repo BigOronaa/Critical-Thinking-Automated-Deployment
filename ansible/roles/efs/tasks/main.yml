@@ -2,10 +2,17 @@
   community.aws.efs:
     name: ansible-efs
     state: present
-    tags:
-      Name: ansible-efs
+    region: us-east-1
   register: efs_out
 
-- name: Export EFS DNS name
+- name: Export EFS ID
   set_fact:
-    efs_dns_name: "{{ efs_out.efs.dns_name }}"
+    efs_id: "{{ efs_out.efs.file_system_id }}"
+
+- name: Build EFS DNS name
+  set_fact:
+    efs_dns_name: "{{ efs_id }}.efs.us-east-1.amazonaws.com"
+
+- name: Show EFS DNS name
+  debug:
+    msg: "EFS DNS name is {{ efs_dns_name }}"
