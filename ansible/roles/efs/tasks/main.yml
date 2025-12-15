@@ -1,5 +1,5 @@
 - name: Create EFS file system
-  community.aws.efs_file_system:
+  community.aws.efs:
     state: present
     performance_mode: generalPurpose
     encrypted: true

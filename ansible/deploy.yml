@@ -1,66 +1,51 @@
----
 - name: Provision AWS Infrastructure
   hosts: localhost
+  connection: local
   gather_facts: false
+
   vars:
     region: us-east-1
-    ec2_key_name: ansible-key-ci
-    ec2_instance_type: t3.micro
-    ec2_image: ami-068c0051b15cdb816
-    ec2_security_group: default
-    ec2_subnet_id: subnet-0399a0b1b9334985a
-    efs_security_group: default
+    efs_name: ansible-efs
 
   tasks:
-    - name: Launch EC2 Instance
-      amazon.aws.ec2_instance:
+    - name: Launch EC2 instance
+      community.aws.ec2_instance:
         name: ansible-ec2
-        region: "{{ region }}"
-        image_id: "{{ ec2_image }}"
-        instance_type: "{{ ec2_instance_type }}"
-        key_name: "{{ ec2_key_name }}"
-        vpc_subnet_id: "{{ ec2_subnet_id }}"
-        security_groups:
-          - "{{ ec2_security_group }}"
+        key_name: my-key
+        instance_type: t2.micro
+        image_id: ami-0c02fb55956c7d316
         wait: true
-        state: running
-        tags:
-          Name: ansible-ec2
+        region: "{{ region }}"
+        security_group: default
+        subnet_id: subnet-xxxxxxxx
       register: ec2_out
 
-    - name: Export EC2 info
+    - name: Save EC2 subnet ID
       set_fact:
         ec2_subnet_id: "{{ ec2_out.instances[0].subnet_id }}"
-        ec2_public_ip: "{{ ec2_out.instances[0].public_ip_address }}"
-        ec2_private_ip: "{{ ec2_out.instances[0].private_ip_address }}"
 
     - name: Create EFS file system
-      amazon.aws.efs_file_system:
+      community.aws.efs:
         state: present
-        performance_mode: generalPurpose
-        encrypted: true
-        tags:
-          Name: ansible-efs
+        name: "{{ efs_name }}"
+        region: "{{ region }}"
       register: efs_out
 
-    - name: Wait for EFS to become available
-      amazon.aws.efs_file_system_info:
-        file_system_ids:
-          - "{{ efs_out.file_system_id }}"
-      register: efs_info
-      until: efs_info.file_systems[0].life_cycle_state == "available"
-      retries: 10
-      delay: 10
+    - name: Save EFS ID
+      set_fact:
+        efs_id: "{{ efs_out.efs.file_system_id }}"
 
     - name: Create EFS mount target
-      amazon.aws.efs_mount_target:
+      community.aws.efs_mount_target:
         state: present
-        file_system_id: "{{ efs_out.file_system_id }}"
+        file_system_id: "{{ efs_id }}"
         subnet_id: "{{ ec2_subnet_id }}"
+        region: "{{ region }}"
         security_groups:
-          - "{{ efs_security_group }}"
+          - sg-xxxxxxxx
 
-    - name: Export EFS DNS name
-      set_fact:
-        efs_dns_name: "{{ efs_out.dns_name }}"
-      delegate_to: localhost
+- name: Configure EC2 Instance
+  hosts: web
+  become: true
+  roles:
+    - configure-ec2
