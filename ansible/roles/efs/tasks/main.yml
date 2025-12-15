@@ -1,7 +1,7 @@
 - name: Create EFS file system
   community.aws.efs:
-    name: ansible-efs
     state: present
+    name: ansible-efs
     region: us-east-1
   register: efs_out
 
@@ -16,12 +16,4 @@
 - name: Show EFS DNS name
   debug:
     msg: "EFS DNS name is {{ efs_dns_name }}"
-
-- name: Mount EFS
-  mount:
-    path: /mnt/efs
-    src: "{{ hostvars['localhost']['efs_dns_name'] }}:/"
-    fstype: nfs4
-    opts: defaults,_netdev
-    state: mounted
 
