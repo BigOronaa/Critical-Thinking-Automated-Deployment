@@ -1,5 +1,5 @@
 - name: Create EFS file system
-  community.aws.efs:
+  amazon.aws.efs:
     state: present
     name: ansible-efs
     region: us-east-1
@@ -9,6 +9,15 @@
   set_fact:
     efs_id: "{{ efs_out.efs.file_system_id }}"
 
+- name: Create EFS mount target
+  amazon.aws.efs_mount_target:
+    state: present
+    file_system_id: "{{ efs_id }}"
+    subnet_id: "{{ ec2_subnet_id }}"
+    security_groups:
+      - "{{ ec2_security_group_id }}"
+    region: us-east-1
+
 - name: Build EFS DNS name
   set_fact:
     efs_dns_name: "{{ efs_id }}.efs.us-east-1.amazonaws.com"
@@ -16,4 +25,3 @@
 - name: Show EFS DNS name
   debug:
     msg: "EFS DNS name is {{ efs_dns_name }}"
-

@@ -13,3 +13,10 @@
     tags:
       Name: ansible-ec2
 
+- name: Export EC2 subnet ID
+  set_fact:
+    ec2_subnet_id: "{{ subnet_id }}"
+
+- name: Export EC2 security group ID
+  set_fact:
+    ec2_security_group_id: "{{ security_group_id }}"
