@@ -10,7 +10,7 @@
     efs_id: "{{ efs_out.efs.file_system_id }}"
 
 - name: Create EFS mount target
-  amazon.aws.efs_mount_target:
+  community.aws.efs_mount_target:
     state: present
     file_system_id: "{{ efs_id }}"
     subnet_id: "{{ ec2_subnet_id }}"
