@@ -1,22 +1,17 @@
-- name: Create EFS file system
+- name: Create EFS file system with mount target
   community.aws.efs:
     state: present
     name: ansible-efs
     region: us-east-1
+    targets:
+      - subnet_id: "{{ ec2_subnet_id }}"
+        security_groups:
+          - "{{ ec2_security_group_id }}"
   register: efs_out
 
 - name: Export EFS ID
   set_fact:
     efs_id: "{{ efs_out.efs.file_system_id }}"
-
-- name: Create EFS mount target
-  community.aws.ec2_efs_mount_target:
-    state: present
-    file_system_id: "{{ efs_id }}"
-    subnet_id: "{{ ec2_subnet_id }}"
-    security_groups:
-      - "{{ ec2_security_group_id }}"
-    region: us-east-1
 
 - name: Build EFS DNS name
   set_fact:
