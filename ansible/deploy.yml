@@ -1,17 +1,13 @@
----
 - name: Provision AWS Infrastructure
   hosts: localhost
   connection: local
   gather_facts: no
-
   roles:
     - ec2
     - efs
 
 - name: Configure EC2 Instance
-  hosts: web
-  become: yes
-  gather_facts: yes
-
+  hosts: ansible-ec2
+  become: true
   roles:
     - configure-ec2

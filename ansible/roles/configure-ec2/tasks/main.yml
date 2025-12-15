@@ -34,11 +34,4 @@
     mode: '0755'
   become: true
 
-- name: Mount EFS
-  mount:
-    path: /mnt/efs
-    src: "{{ hostvars['localhost']['efs_dns_name'] }}:/"
-    fstype: efs
-    opts: _netdev,tls
-    state: mounted
-  become: true
+
