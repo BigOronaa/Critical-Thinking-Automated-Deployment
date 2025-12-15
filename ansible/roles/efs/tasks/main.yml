@@ -16,3 +16,12 @@
 - name: Show EFS DNS name
   debug:
     msg: "EFS DNS name is {{ efs_dns_name }}"
+
+- name: Mount EFS
+  mount:
+    path: /mnt/efs
+    src: "{{ hostvars['localhost']['efs_dns_name'] }}:/"
+    fstype: nfs4
+    opts: defaults,_netdev
+    state: mounted
+
