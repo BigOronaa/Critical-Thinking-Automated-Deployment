@@ -70,16 +70,11 @@
 # -------------------------
 # MariaDB (MySQL-compatible)
 # -------------------------
-- name: Enable MariaDB 10.5 repository
-  become: true
-  command: amazon-linux-extras enable mariadb10.5
-  register: mariadb_repo
-  changed_when: "'enabled' in mariadb_repo.stdout"
-
 - name: Install MariaDB server
   become: true
-  package:
-    name: mariadb-server
+  dnf:
+    name:
+      - mariadb-server
     state: present
 
 - name: Start and enable MariaDB
