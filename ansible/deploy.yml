@@ -20,10 +20,6 @@
         subnet_id: subnet-xxxxxxxx
       register: ec2_out
 
-    - name: Save EC2 subnet ID
-      set_fact:
-        ec2_subnet_id: "{{ ec2_out.instances[0].subnet_id }}"
-
     - name: Create EFS file system
       community.aws.efs:
         state: present

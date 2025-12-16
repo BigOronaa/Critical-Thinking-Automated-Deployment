@@ -1,4 +1,6 @@
-# configure-ec2/tasks/main.yml
+---
+# EC2 Configuration Tasks
+# Assumes EFS is already mounted manually, so mount task is optional
 
 - name: Update system packages
   become: true
@@ -13,8 +15,6 @@
       - git
       - docker
       - amazon-efs-utils
-      - httpd
-      - mysql-server
     state: present
 
 - name: Start and enable Docker
@@ -31,23 +31,22 @@
     groups: docker
     append: yes
 
-- name: Create EFS mount directory
+- name: Create EFS mount directory (skip if exists)
   become: true
   file:
     path: /mnt/efs
     state: directory
     mode: '0755'
 
-- name: Mount EFS
+# -------------------------
+# Apache Installation
+# -------------------------
+- name: Install Apache
   become: true
-  mount:
-    path: /mnt/efs
-    src: "fs-0a2d0bab2c00006e4:/"
-    fstype: efs
-    opts: _netdev,tls
-    state: mounted
+  package:
+    name: httpd
+    state: present
 
-# Apache setup
 - name: Start and enable Apache
   become: true
   service:
@@ -55,10 +54,19 @@
     state: started
     enabled: true
 
-# MySQL setup
-- name: Start and enable MySQL
+# -------------------------
+# MariaDB (MySQL-compatible)
+# -------------------------
+- name: Install MariaDB server
+  become: true
+  package:
+    name: mariadb-server
+    state: present
+
+- name: Start and enable MariaDB
   become: true
   service:
-    name: mysqld
+    name: mariadb
     state: started
     enabled: true
+
