@@ -24,7 +24,7 @@ jobs:
           source .venv/bin/activate
           pip install --upgrade pip
           pip install ansible boto3 botocore
-          ansible-galaxy collection install amazon.aws community.aws
+          ansible-galaxy collection install -r ansible/collections/requirements.yml -p ansible/collections
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -33,7 +33,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      # 🔥 Use ssh-agent to handle EC2 key
+      # 🔥 FIX: Use ssh-agent instead of writing key to disk
       - name: Start SSH agent and add EC2 key
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -43,7 +43,7 @@ jobs:
         run: |
           ssh-keyscan -H 100.48.50.251 >> ~/.ssh/known_hosts
 
-      - name: Run Ansible Playbook (Provision + Configure EC2 + EFS)
+      - name: Run Ansible Playbook
         run: |
           source .venv/bin/activate
-          ansible-playbook ansible/deploy.yml -i ansible/inventory.ini
+          ansible-playbook ansible/deploy.yml -i ansible/inventory.ini --limit ansible-ec2

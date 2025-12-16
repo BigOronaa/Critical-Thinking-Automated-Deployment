@@ -1,13 +1,8 @@
-- name: Create EFS file system
-  community.aws.efs:
-    name: ansible-efs
-    state: present
-    region: us-east-1
-  register: efs_out
+# efs/tasks/main.yml
 
-- name: Set EFS ID
+- name: Set EFS ID (already exists)
   set_fact:
-    efs_id: "{{ efs_out.efs.file_system_id }}"
+    efs_id: "fs-0a2d0bab2c00006e4"
 
 - name: Build EFS DNS name
   set_fact:

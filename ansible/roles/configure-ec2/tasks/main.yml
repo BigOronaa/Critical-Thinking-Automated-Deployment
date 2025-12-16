@@ -1,3 +1,5 @@
+# configure-ec2/tasks/main.yml
+
 - name: Update system packages
   become: true
   package:
@@ -11,6 +13,8 @@
       - git
       - docker
       - amazon-efs-utils
+      - httpd
+      - mysql-server
     state: present
 
 - name: Start and enable Docker
@@ -42,3 +46,19 @@
     fstype: efs
     opts: _netdev,tls
     state: mounted
+
+# Apache setup
+- name: Start and enable Apache
+  become: true
+  service:
+    name: httpd
+    state: started
+    enabled: true
+
+# MySQL setup
+- name: Start and enable MySQL
+  become: true
+  service:
+    name: mysqld
+    state: started
+    enabled: true
