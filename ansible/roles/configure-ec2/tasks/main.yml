@@ -1,18 +1,21 @@
 ---
-# EC2 Configuration Tasks (EFS mount skipped)
+# EC2 Configuration Tasks (Amazon Linux 2023, EFS mount skipped)
 
+# -------------------------
+# Update System Packages
+# -------------------------
 - name: Update system packages
   become: true
-  yum:
+  dnf:
     name: "*"
     state: latest
 
 # -------------------------
-# Install required packages
+# Install Required Packages
 # -------------------------
 - name: Install basic packages
   become: true
-  package:
+  dnf:
     name:
       - git
       - docker
@@ -41,7 +44,7 @@
 # -------------------------
 - name: Install Apache
   become: true
-  package:
+  dnf:
     name: httpd
     state: present
 
@@ -70,11 +73,21 @@
 # -------------------------
 # MariaDB (MySQL-compatible)
 # -------------------------
+- name: Add MariaDB official repository
+  become: true
+  copy:
+    dest: /etc/yum.repos.d/MariaDB.repo
+    content: |
+      [mariadb]
+      name = MariaDB
+      baseurl = http://yum.mariadb.org/10.11/centos9-amd64
+      gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+      gpgcheck=1
+
 - name: Install MariaDB server
   become: true
   dnf:
-    name:
-      - mariadb-server
+    name: mariadb-server
     state: present
 
 - name: Start and enable MariaDB
