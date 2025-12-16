@@ -1,89 +1,99 @@
----
-# EC2 Configuration Tasks (Amazon Linux 2023, EFS mount skipped)
-
 # -------------------------
-# Update System Packages
+# Apache Installation
 # -------------------------
-- name: Update system packages
-  become: true
-  dnf:
-    name: "*"
-    state: latest
+- name: Apache setup block
+  block:
 
-# -------------------------
-# Install Required Packages
-# -------------------------
-- name: Install basic packages
-  become: true
-  dnf:
-    name:
-      - git
-      - docker
-      - amazon-efs-utils
-    state: present
+    - name: Install Apache
+      become: true
+      package:
+        name: httpd
+        state: present
 
-# -------------------------
-# Docker Setup
-# -------------------------
-- name: Start and enable Docker
-  become: true
-  service:
-    name: docker
-    state: started
-    enabled: true
+    - name: Ensure Apache document root exists
+      become: true
+      file:
+        path: /var/www/html
+        state: directory
+        mode: '0755'
 
-- name: Add ec2-user to docker group
-  become: true
-  user:
-    name: ec2-user
-    groups: docker
-    append: yes
+    - name: Start and enable Apache
+      become: true
+      service:
+        name: httpd
+        state: started
+        enabled: true
 
-# -------------------------
-# Apache Web Server
-# -------------------------
-- name: Install Apache
-  become: true
-  dnf:
-    name: httpd
-    state: present
+  rescue:
+    - name: Apache failure reason
+      debug:
+        msg: |
+          Apache failed to install or start.
+          Possible causes:
+          - Port 80 already in use
+          - SELinux blocking httpd
+          - Invalid httpd configuration
 
-- name: Ensure Apache document root exists
-  become: true
-  file:
-    path: /var/www/html
-    state: directory
-    owner: apache
-    group: apache
-    mode: '0755'
+    - name: Show Apache status
+      become: true
+      command: systemctl status httpd
+      register: apache_status
+      failed_when: false
 
-- name: Disable SELinux enforcement (Amazon Linux fix)
-  become: true
-  command: setenforce 0
-  when: ansible_selinux.status == "enabled"
-  ignore_errors: yes
+    - debug:
+        var: apache_status.stdout
 
-- name: Ensure Apache is enabled and restarted
-  become: true
-  service:
-    name: httpd
-    state: restarted
-    enabled: true
+    - name: Force Apache failure
+      fail:
+        msg: "Apache setup failed. Aborting deployment."
+
+  always:
+    - debug:
+        msg: "Apache setup block completed."
+
 
 # -------------------------
 # MariaDB (MySQL-compatible)
 # -------------------------
-- name: Install MariaDB server
-  become: true
-  dnf:
-    name:
-      - mariadb105-server
-    state: present
+- name: MariaDB setup block
+  block:
 
-- name: Start and enable MariaDB
-  become: true
-  service:
-    name: mariadb
-    state: started
-    enabled: true
+    - name: Install MariaDB server
+      become: true
+      package:
+        name: mariadb-server
+        state: present
 
+    - name: Start and enable MariaDB
+      become: true
+      service:
+        name: mariadb
+        state: started
+        enabled: true
+
+  rescue:
+    - name: MariaDB failure reason
+      debug:
+        msg: |
+          MariaDB failed to install or start.
+          Possible causes:
+          - Package repo unavailable
+          - Port 3306 conflict
+          - Permission issues
+
+    - name: Show MariaDB status
+      become: true
+      command: systemctl status mariadb
+      register: mariadb_status
+      failed_when: false
+
+    - debug:
+        var: mariadb_status.stdout
+
+    - name: Force MariaDB failure
+      fail:
+        msg: "MariaDB setup failed. Aborting deployment."
+
+  always:
+    - debug:
+        msg: "MariaDB setup block completed."
