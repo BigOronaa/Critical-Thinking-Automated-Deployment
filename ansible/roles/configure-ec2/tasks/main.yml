@@ -37,9 +37,8 @@
     path: /mnt/efs
     state: directory
     mode: '0755'
-
 # -------------------------
-# Apache Installation
+# Apache Web Server
 # -------------------------
 - name: Install Apache
   become: true
@@ -47,12 +46,28 @@
     name: httpd
     state: present
 
-- name: Start and enable Apache
+- name: Ensure Apache document root exists
+  become: true
+  file:
+    path: /var/www/html
+    state: directory
+    owner: apache
+    group: apache
+    mode: '0755'
+
+- name: Disable SELinux enforcement (Amazon Linux fix)
+  become: true
+  command: setenforce 0
+  when: ansible_selinux.status == "enabled"
+  ignore_errors: yes
+
+- name: Ensure Apache is enabled and restarted
   become: true
   service:
     name: httpd
-    state: started
+    state: restarted
     enabled: true
+
 
 # -------------------------
 # MariaDB (MySQL-compatible)
