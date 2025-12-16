@@ -37,6 +37,18 @@
     path: /mnt/efs
     state: directory
     mode: '0755'
+
+# -------------------------
+# Web Server Conflict Fix
+# -------------------------
+- name: Stop and disable nginx if present
+  become: true
+  service:
+    name: nginx
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
 # -------------------------
 # Apache Web Server
 # -------------------------
@@ -68,7 +80,6 @@
     state: restarted
     enabled: true
 
-
 # -------------------------
 # MariaDB (MySQL-compatible)
 # -------------------------
@@ -84,4 +95,3 @@
     name: mariadb
     state: started
     enabled: true
-
