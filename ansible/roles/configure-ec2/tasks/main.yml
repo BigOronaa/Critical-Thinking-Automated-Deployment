@@ -1,14 +1,16 @@
 ---
-# EC2 Configuration Tasks
-# Assumes EFS is already mounted manually, so mount task is optional
+# EC2 Configuration Tasks (EFS mount skipped)
 
 - name: Update system packages
   become: true
-  package:
+  yum:
     name: "*"
     state: latest
 
-- name: Install required packages
+# -------------------------
+# Install required packages
+# -------------------------
+- name: Install basic packages
   become: true
   package:
     name:
@@ -17,6 +19,9 @@
       - amazon-efs-utils
     state: present
 
+# -------------------------
+# Docker Setup
+# -------------------------
 - name: Start and enable Docker
   become: true
   service:
@@ -30,24 +35,6 @@
     name: ec2-user
     groups: docker
     append: yes
-
-- name: Create EFS mount directory (skip if exists)
-  become: true
-  file:
-    path: /mnt/efs
-    state: directory
-    mode: '0755'
-
-# -------------------------
-# Web Server Conflict Fix
-# -------------------------
-- name: Stop and disable nginx if present
-  become: true
-  service:
-    name: nginx
-    state: stopped
-    enabled: false
-  ignore_errors: true
 
 # -------------------------
 # Apache Web Server
@@ -83,6 +70,12 @@
 # -------------------------
 # MariaDB (MySQL-compatible)
 # -------------------------
+- name: Enable MariaDB 10.5 repository
+  become: true
+  command: amazon-linux-extras enable mariadb10.5
+  register: mariadb_repo
+  changed_when: "'enabled' in mariadb_repo.stdout"
+
 - name: Install MariaDB server
   become: true
   package:
@@ -95,3 +88,12 @@
     name: mariadb
     state: started
     enabled: true
+
+- name: Check MariaDB status
+  become: true
+  command: systemctl status mariadb
+  register: mariadb_status
+  ignore_errors: yes
+
+- debug:
+    var: mariadb_status.stdout_lines
