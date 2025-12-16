@@ -73,21 +73,11 @@
 # -------------------------
 # MariaDB (MySQL-compatible)
 # -------------------------
-- name: Add MariaDB official repository
-  become: true
-  copy:
-    dest: /etc/yum.repos.d/MariaDB.repo
-    content: |
-      [mariadb]
-      name = MariaDB
-      baseurl = http://yum.mariadb.org/10.11/centos9-amd64
-      gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
-      gpgcheck=1
-
 - name: Install MariaDB server
   become: true
   dnf:
-    name: mariadb-server
+    name:
+      - mariadb105-server
     state: present
 
 - name: Start and enable MariaDB
@@ -97,11 +87,3 @@
     state: started
     enabled: true
 
-- name: Check MariaDB status
-  become: true
-  command: systemctl status mariadb
-  register: mariadb_status
-  ignore_errors: yes
-
-- debug:
-    var: mariadb_status.stdout_lines
