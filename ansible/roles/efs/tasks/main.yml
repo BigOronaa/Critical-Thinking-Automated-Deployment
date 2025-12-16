@@ -1,8 +1,17 @@
-# efs/tasks/main.yml
+---
+# EFS Role Tasks
+# Assumes EFS is already mounted manually, no mount target creation needed
 
-- name: Set EFS ID (already exists)
+- name: Ensure EFS file system exists
+  community.aws.efs:
+    name: ansible-efs
+    state: present
+    region: us-east-1
+  register: efs_out
+
+- name: Set EFS ID
   set_fact:
-    efs_id: "fs-0a2d0bab2c00006e4"
+    efs_id: "{{ efs_out.efs.file_system_id }}"
 
 - name: Build EFS DNS name
   set_fact:
