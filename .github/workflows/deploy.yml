@@ -24,7 +24,10 @@ jobs:
           source .venv/bin/activate
           pip install --upgrade pip
           pip install ansible boto3 botocore
-          ansible-galaxy collection install -r ansible/collections/requirements.yml -p ansible/collections
+          # Option A: Direct install
+          ansible-galaxy collection install amazon.aws community.aws
+          # OR Option B: Using requirements.yml
+          # ansible-galaxy collection install -r ansible/collections/requirements.yml          
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
