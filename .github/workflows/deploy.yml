@@ -46,3 +46,12 @@ jobs:
         run: |
           . .venv/bin/activate
           ansible-playbook ansible/deploy.yml -i ansible/inventory.ini --limit ansible-ec2
+
+      - name: Deployment failure notification
+        if: failure()
+        run: |
+          echo "❌ Deployment failed!"
+          echo "Check Ansible logs in GitHub Actions for details."
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Commit: $GITHUB_SHA"
+
