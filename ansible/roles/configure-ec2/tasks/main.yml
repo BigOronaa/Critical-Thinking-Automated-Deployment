@@ -1,24 +1,44 @@
-- name: Create mount directory
+- name: Update system packages
+  become: true
+  package:
+    name: "*"
+    state: latest
+
+- name: Install required packages
+  become: true
+  package:
+    name:
+      - git
+      - docker
+      - amazon-efs-utils
+    state: present
+
+- name: Start and enable Docker
+  become: true
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Add ec2-user to docker group
+  become: true
+  user:
+    name: ec2-user
+    groups: docker
+    append: yes
+
+- name: Create EFS mount directory
   become: true
   file:
     path: /mnt/efs
     state: directory
     mode: '0755'
 
-- name: Wait for EFS DNS to resolve
-  become: true
-  shell: |
-    for i in {1..10}; do
-      getent hosts {{ efs_dns_name }} && exit 0
-      sleep 10
-    done
-    exit 1
-
 - name: Mount EFS
   become: true
   mount:
     path: /mnt/efs
-    src: "{{ efs_dns_name }}:/"
+    src: "fs-0a2d0bab2c00006e4:/"
     fstype: efs
     opts: _netdev,tls
     state: mounted
