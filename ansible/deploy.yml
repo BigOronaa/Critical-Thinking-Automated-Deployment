@@ -12,7 +12,7 @@
       amazon.aws.ec2_instance:
         name: ansible-ec2
         key_name: my-key
-        instance_type: t2.micro
+        instance_type: t3.micro
         image_id: ami-0c02fb55956c7d316
         wait: true
         region: "{{ region }}"
@@ -34,15 +34,6 @@
     - name: Save EFS ID
       set_fact:
         efs_id: "{{ efs_out.efs.file_system_id }}"
-
-    - name: Create EFS mount target
-      amazon.aws.efs_mount_target:
-        state: present
-        file_system_id: "{{ efs_id }}"
-        subnet_id: "{{ ec2_subnet_id }}"
-        region: "{{ region }}"
-        security_groups:
-          - sg-xxxxxxxx
 
 - name: Configure EC2 Instance
   hosts: web
